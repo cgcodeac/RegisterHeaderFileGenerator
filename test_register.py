@@ -1,5 +1,6 @@
 from register import DeviceRegister
 import unittest
+import filecmp
 
 
 class RegisterClassTests(unittest.TestCase):
@@ -24,11 +25,25 @@ class RegisterClassTests(unittest.TestCase):
         statusReg = DeviceRegister("STATUS", "Provides Status Info", 8)
         statusReg.addField("nTO", "Time Out Bit", 2, 3)
         statusReg.field[0].addSetting("WDTExpired", "The watchdog timer expired", 1)
+        statusReg.field[0].addSetting("WDTCleared", "The watchdog time has not expired", 0)
         self.assertEqual(statusReg.field[0].setting[0].name, "WDTExpired") 
         self.assertEqual(statusReg.field[0].setting[0].description, "The watchdog timer expired") 
         self.assertEqual(statusReg.field[0].setting[0].value, 1) 
 
 
 
+    def test_saveRegisterFile(self): 
+        statusReg = DeviceRegister("STATUS", "Provides Status Info", 8)
+        statusReg.addField("nTO", "Time Out Bit", 2, 3)
+        statusReg.field[0].addSetting("WDTExpired", "The watchdog timer expired", 1)
+        statusReg.field[0].addSetting("WDTCleared", "The watchdog time has not expired", 0)
+        statusReg.saveRegisterFile("./test_StatusRegTestSave.txt")
 
+    
+    def test_loadSaveRegisterFile(self): 
+        statusReg = DeviceRegister("", "", 0)
+        statusReg.loadRegisterFile("./test_StatusRegTestSave.txt")
+        statusReg.saveRegisterFile("./test_StatusRegTestLoad.txt")
+        identical = filecmp.cmp("./test_StatusRegTestSave.txt", "./test_StatusRegTestLoad.txt")
+        self.assertEqual(identical, True)
 
